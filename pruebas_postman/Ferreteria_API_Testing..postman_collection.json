@@ -1,0 +1,250 @@
+{
+  "info": {
+    "_postman_id": "6f8e4165-e59e-4337-be60-cd500416d6f4",
+    "name": "Ferreteria_API_Testing.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "57734954",
+    "_collection_link": "https://go.postman.co/collection/57734954-6f8e4165-e59e-4337-be60-cd500416d6f4?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "1.Autenticacion Token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Aserción 1: Validar que el servidor responda con un 200 OK\r",
+              "pm.test(\"Estado HTTP es 200 OK\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "// Aserción 2: Validar rendimiento (respuesta rápida)\r",
+              "pm.test(\"Tiempo de respuesta inferior a 2000ms\", function () {\r",
+              "    pm.expect(pm.response.responseTime).to.be.below(2000);\r",
+              "});\r",
+              "\r",
+              "// Aserción 3: Guardar automáticamente el token recibido\r",
+              "pm.test(\"Token guardado exitosamente en la variable\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.environment.set(\"user_token\", jsonData.token);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n\r\n   \"username\":  \"nicolas\",\r\n   \"password\":   \"torres03\"\r\n\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/v1/auth/token/",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "token",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "2. Consultar Productos y cambia el método a GET",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Aserción 1: Validar código de estado HTTP 200 OK\r",
+              "pm.test(\"Estado HTTP es 200 OK\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "// Aserción 2: Definir y validar el contrato JSON Schema\r",
+              "const schema = {\r",
+              "    \"type\": \"array\",\r",
+              "    \"items\": {\r",
+              "        \"type\": \"object\",\r",
+              "        \"required\": [\"id\", \"nombre\", \"codigo\", \"precio_base\", \"stock\", \"precio_final\"],\r",
+              "        \"properties\": {\r",
+              "            \"id\": { \"type\": \"number\" },\r",
+              "            \"nombre\": { \"type\": \"string\" },\r",
+              "            \"codigo\": { \"type\": \"string\" },\r",
+              "            \"precio_base\": { \"type\": \"string\" },\r",
+              "            \"stock\": { \"type\": \"number\" },\r",
+              "            \"precio_final\": { \"type\": \"number\" }\r",
+              "        }\r",
+              "    }\r",
+              "};\r",
+              "\r",
+              "pm.test(\"El contrato del esquema JSON es válido\", function () {\r",
+              "    pm.response.to.have.jsonSchema(schema);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/v1/productos/",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "v1",
+            "productos",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "3.crear_productos",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201 or 400\", function () {",
+              "    pm.expect(pm.response.code).to.be.oneOf([201, 400]);",
+              "});",
+              "",
+              "pm.test(\"Response time is less than 2000ms\", function () {",
+              "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+              "});",
+              "",
+              "pm.test(\"Response body contains correct product details if successful\", function () {",
+              "    if (pm.response.code === 201) {",
+              "        const jsonData = pm.response.json();",
+              "        pm.expect(jsonData).to.have.property(\"id\");",
+              "        pm.expect(jsonData.nombre).to.eql(\"Taladro Percutor\");",
+              "        pm.expect(jsonData.codigo).to.eql(\"FERR-666\");",
+              "        pm.expect(jsonData.precio_base).to.eql(\"250000.00\");",
+              "        pm.expect(jsonData.stock).to.eql(1000);",
+              "        pm.expect(jsonData).to.have.property(\"precio_final\");",
+              "    } else {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\");",
+              "    }",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Token {{user_token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"nombre\": \"Taladro Percutor\",\r\n    \"codigo\": \"FERR-666\",\r\n    \"precio_base\": 250000.00,\r\n    \"stock\": 1000\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/v1/productos/",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "v1",
+            "productos",
+            ""
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
